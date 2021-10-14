@@ -1,0 +1,30 @@
+{
+  "name": "@stein197/value-observer",
+  "version": "1.0.0",
+  "description": "JavaScript wrapper around values that can be observed",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stein197/value-observer.git"
+  },
+  "keywords": [
+    "value",
+    "observer"
+  ],
+  "author": "Nail' Gafarov <nil20122013@gmail.com> (https://gnail.dev)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/stein197/value-observer/issues"
+  },
+  "homepage": "https://github.com/stein197/value-observer#readme",
+  "dependencies": {
+    "@stein197/observer": "^1.1.0",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.175"
+  }
+}
