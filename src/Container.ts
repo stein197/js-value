@@ -1,4 +1,4 @@
-import {EventEmitter} from "@stein197/observer";
+import {ReadonlyContainer} from "./ReadonlyContainer";
 import Value from "./Value";
 
 /**
@@ -19,7 +19,7 @@ import Value from "./Value";
  * ```
  * @typaParam T - Type of passed value.
  */
-export default class Container<T extends {[K: string]: any}> implements EventEmitter<{[K in keyof T]: (value: T[K]) => void}> {
+export default class Container<T extends {[K: string]: any}> implements ReadonlyContainer<T> {
 
 	private readonly values: {[K in keyof T]: Value<T[K]>} = {} as {[K in keyof T]: Value<T[K]>};
 
@@ -32,11 +32,6 @@ export default class Container<T extends {[K: string]: any}> implements EventEmi
 			this.values[key as keyof T] = new Value(value);
 	}
 
-	/**
-	 * Return value by its key.
-	 * @param key Key by which value is returned.
-	 * @returns Value.
-	 */
 	public get<K extends keyof T>(key: K): T[K] {
 		return this.values[key].get();
 	}

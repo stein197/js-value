@@ -1,5 +1,6 @@
 import lodash from "lodash";
-import {Observable, Observer} from "@stein197/observer";
+import {Observer} from "@stein197/observer";
+import {ReadonlyValue} from "./ReadonlyValue";
 
 /**
  * Observable class which wraps passed values and observes them to change.
@@ -13,7 +14,7 @@ import {Observable, Observer} from "@stein197/observer";
  * Complex values can also be observed.
  * @typaParam T - Type of passed value.
  */
-export default class Value<T> implements Observable<(value: T) => void> {
+export default class Value<T> implements ReadonlyValue<T> {
 
 	private readonly observer = new Observer<(value: T) => void>();
 
@@ -23,10 +24,6 @@ export default class Value<T> implements Observable<(value: T) => void> {
 	 */
 	public constructor(private value: T) {}
 
-	/**
-	 * Return value.
-	 * @returns Value.
-	 */
 	public get(): T {
 		return this.value;
 	}
