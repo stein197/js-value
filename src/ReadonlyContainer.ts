@@ -10,6 +10,13 @@ import {EventEmitter} from "@stein197/observer";
  *     values.get("age"); // OK
  *     values.set("age", 1); // Compile-time error
  * }
+ * // or
+ * class SomeContainer implements ReadonlyContainer<{age: number}> {
+ *     // ...
+ * }
+ * const container = new SomeContainer();
+ * container.get("age"); // OK
+ * container.set("age", 1); // Compile-time error
  * ```
  * @typeParam T - Type of value.
  */
