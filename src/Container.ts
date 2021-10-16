@@ -1,5 +1,5 @@
 import {ReadonlyContainer} from "./ReadonlyContainer";
-import Value from "./Value";
+import {Value} from "./Value";
 
 /**
  * Observable class which wraps map of values and observes on them.
@@ -19,7 +19,7 @@ import Value from "./Value";
  * ```
  * @typaParam T - Type of passed value.
  */
-export default class Container<T extends {[K: string]: any}> implements ReadonlyContainer<T> {
+export class Container<T extends {[K: string]: any}> implements ReadonlyContainer<T> {
 
 	private readonly values: {[K in keyof T]: Value<T[K]>} = {} as {[K in keyof T]: Value<T[K]>};
 

@@ -14,7 +14,7 @@ import {ReadonlyValue} from "./ReadonlyValue";
  * Complex values can also be observed.
  * @typaParam T - Type of passed value.
  */
-export default class Value<T> implements ReadonlyValue<T> {
+export class Value<T> implements ReadonlyValue<T> {
 
 	private readonly observer = new Observer<(value: T) => void>();
 
