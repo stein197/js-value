@@ -33,10 +33,14 @@ export class Value<T> implements ReadonlyValue<T> {
 	 * @param value New value
 	 */
 	public set(value: T): void {
-		if (lodash.isEqual(this.value, value))
-			return;
-		this.value = value;
-		this.observer.notify(value);
+		const isObject = lodash.isObject(value) && !lodash.isArray(value)
+		if (isObject && Value.partiallyEqual(this.value as unknown as object, value as unknown as object) || lodash.isEqual(this.value, value))
+				return;
+		if (isObject)
+			Object.assign(this.value, value);
+		else
+			this.value = value;
+		this.observer.notify(this.value);
 	}
 
 	public addListener(listener: (value: T) => void): void {
@@ -45,5 +49,15 @@ export class Value<T> implements ReadonlyValue<T> {
 
 	public removeListener(listener: (value: T) => void): void {
 		this.observer.removeListener(listener);
+	}
+
+	private static partiallyEqual(obj1: {[key: string]: any}, obj2: {[key: string]: any}): boolean {
+		const difference = lodash.difference(Object.keys(obj1), Object.keys(obj2));
+		for (const key of difference) {
+			const isObject = lodash.isObject(obj1[key]) && !lodash.isArray(obj1[key]);
+			if (isObject && !Value.partiallyEqual(obj1[key], obj2[key]) || !lodash.isEqual(obj1[key], obj2[key]))
+				return false;
+		}
+		return true;
 	}
 }
