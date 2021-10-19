@@ -52,8 +52,8 @@ export class Value<T> implements ReadonlyValue<T> {
 	}
 
 	private static partiallyEqual(obj1: {[key: string]: any}, obj2: {[key: string]: any}): boolean {
-		const difference = lodash.difference(Object.keys(obj1), Object.keys(obj2));
-		for (const key of difference) {
+		const intersection = lodash.intersection(Object.keys(obj1), Object.keys(obj2));
+		for (const key of intersection) {
 			const isObject = lodash.isObject(obj1[key]) && !lodash.isArray(obj1[key]);
 			if (isObject && !Value.partiallyEqual(obj1[key], obj2[key]) || !lodash.isEqual(obj1[key], obj2[key]))
 				return false;
