@@ -1,8 +1,10 @@
-import "should";
 import mocha from "mocha";
+import assert from "assert";
 import {Value, Container} from ".";
 
 mocha.describe("Value<T>", () => {
+	let tracker = new assert.CallTracker();
+	let noop: () => void;
 	let primitiveValue: Value<string>;
 	let arrayValue: Value<number[]>;
 	let objectValue: Value<{name: string; age: number}>;
@@ -11,6 +13,7 @@ mocha.describe("Value<T>", () => {
 	let objectOfArraysValue: Value<{array: {name: string; age: number}[]}>;
 
 	mocha.beforeEach(() => {
+		noop = tracker.calls(() => {}, 1);
 		primitiveValue = new Value("John");
 		arrayValue = new Value([1, 2, 3]);
 		objectValue = new Value({name: "John", age: 12});
@@ -18,10 +21,9 @@ mocha.describe("Value<T>", () => {
 
 	mocha.it.skip("Not changing primitive value won't fire an event");
 	mocha.it("Changing primitive value fires an event", () => {
-		let tmp = "";
-		primitiveValue.addListener(value => tmp = value);
+		primitiveValue.addListener(noop);
 		primitiveValue.set("string");
-		tmp.should.be.equal("string");
+		tracker.verify();
 	});
 
 	mocha.it.skip("Setting value to null changes the value fires an event");
