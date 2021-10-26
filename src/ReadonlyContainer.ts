@@ -20,7 +20,7 @@ import {EventEmitter} from "@stein197/observer";
  * ```
  * @typeParam T - Type of value.
  */
-export interface ReadonlyContainer<T extends {[K: string]: any}> extends EventEmitter<{[K in keyof T]: (value: T[K]) => void}> {
+export interface ReadonlyContainer<T extends {[K: string]: any}> extends EventEmitter<{[K in keyof T]: (oldValue: T[K], newValue: T[K]) => void}> {
 
 	/**
 	 * Return value by its key.

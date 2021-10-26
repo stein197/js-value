@@ -45,11 +45,11 @@ export class Container<T extends {[K: string]: any}> implements ReadonlyContaine
 		this.values[key].set(value);
 	}
 
-	public addEventListener<K extends keyof T>(key: K, listener: (value: T[K]) => void): void {
+	public addEventListener<K extends keyof T>(key: K, listener: (oldValue: T[K], newValue: T[K]) => void): void {
 		this.values[key].addListener(listener);
 	}
 
-	public removeEventListener<K extends keyof T>(key: K, listener: (value: T[K]) => void): void {
+	public removeEventListener<K extends keyof T>(key: K, listener: (oldValue: T[K], newValue: T[K]) => void): void {
 		this.values[key].removeListener(listener)
 	}
 }

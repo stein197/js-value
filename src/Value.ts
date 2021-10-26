@@ -16,7 +16,7 @@ import {ReadonlyValue} from "./ReadonlyValue";
  */
 export class Value<T> implements ReadonlyValue<T> {
 
-	private readonly observer = new Observer<(value: T) => void>();
+	private readonly observer = new Observer<(oldValue: T, newValue: T) => void>();
 
 	/**
 	 * Instantiates wrapper with passed value.
@@ -36,18 +36,19 @@ export class Value<T> implements ReadonlyValue<T> {
 		const isObject = lodash.isObject(value) && !lodash.isArray(value)
 		if (isObject && Value.partiallyEqual(this.value as unknown as object, value as unknown as object) || lodash.isEqual(this.value, value))
 				return;
+		const oldValue = this.value;
 		if (isObject)
 			Object.assign(this.value, value);
 		else
 			this.value = value;
-		this.observer.notify(this.value);
+		this.observer.notify(oldValue, this.value);
 	}
 
-	public addListener(listener: (value: T) => void): void {
+	public addListener(listener: (oldValue: T, newValue: T) => void): void {
 		this.observer.addListener(listener);
 	}
 
-	public removeListener(listener: (value: T) => void): void {
+	public removeListener(listener: (oldValue: T, newValue: T) => void): void {
 		this.observer.removeListener(listener);
 	}
 

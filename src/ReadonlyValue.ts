@@ -5,7 +5,7 @@ import {Observable} from "@stein197/observer";
  * interface that any value-based class could implement to provide only read-only abilities to the outer world.
  * @typeParam T - Type of value.
  */
-export interface ReadonlyValue<T> extends Observable<(value: T) => void> {
+export interface ReadonlyValue<T> extends Observable<(oldValue: T, newValue: T) => void> {
 
 	/**
 	 * Return value.
