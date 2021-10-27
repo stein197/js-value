@@ -2,10 +2,10 @@ import mocha from "mocha";
 import assert from "assert";
 import {Value, Container} from ".";
 
-function getNoop(count: number): {noop(): void; tracker: assert.CallTracker} {
+function getNoop(): {noop(): void; tracker: assert.CallTracker} {
 	const tracker = new assert.CallTracker();
 	return {
-		noop: tracker.calls(() => {}, count),
+		noop: tracker.calls(() => {}),
 		tracker
 	};
 }
@@ -16,14 +16,14 @@ mocha.describe("Value<T>", () => {
 		mocha.beforeEach(() => value = new Value("John"));
 
 		mocha.it("Not changing value won't fire an event", () => {
-			const noop = getNoop(0);
+			const noop = getNoop();
 			value.addListener(noop.noop);
 			value.set("John");
-			noop.tracker.verify();
+			assert.throws(() => noop.tracker.verify());
 		});
 
 		mocha.it("Changing value fires an event", () => {
-			const noop = getNoop(1);
+			const noop = getNoop();
 			value.addListener(noop.noop);
 			value.set("string");
 			noop.tracker.verify();
@@ -44,14 +44,14 @@ mocha.describe("Value<T>", () => {
 		});
 
 		mocha.it("Setting value to null fires an event", () => {
-			const noop = getNoop(1);
+			const noop = getNoop();
 			value.addListener(noop.noop);
 			value.set(null);
 			noop.tracker.verify();
 		});
 
 		mocha.it("Setting value from null fires an event", () => {
-			const noop = getNoop(1);
+			const noop = getNoop();
 			value.set(null);
 			value.addListener(noop.noop);
 			value.set("string");
