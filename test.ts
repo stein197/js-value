@@ -11,52 +11,66 @@ function getNoop(count: number): {noop(): void; tracker: assert.CallTracker} {
 }
 
 mocha.describe("Value<T>", () => {
-	let primitiveValue: Value<string>;
-	let arrayValue: Value<number[]>;
-	let objectValue: Value<{name: string; age: number}>;
-	let complexValue: Value<{name: string; age: number; array: number[]; object: {param1: string; param2: number}}>;
-	let arrayOfObjectsValue: Value<{name: string; age: number}[]>;
-	let objectOfArraysValue: Value<{array: string[]}>;
+	mocha.describe("Basic usage (primitive value)", () => {
+		let value: Value<string | null>;
+		mocha.beforeEach(() => value = new Value("John"));
 
-	mocha.beforeEach(() => {
-		primitiveValue = new Value("John");
-		arrayValue = new Value([1, 2, 3]);
-		objectValue = new Value({name: "John", age: 12});
-		complexValue = new Value({name: "John", age: 12, array: [1, 2, 3], object: {param1: "A", param2: 1}});
-		arrayOfObjectsValue = new Value([
-			{name: "John", age: 12},
-			{name: "Jack", age: 32}
-		]);
-		objectOfArraysValue = new Value({
-			array: [
-				"A", "B", "C"
-			]
+		mocha.it("Not changing value won't fire an event", () => {
+			const noop = getNoop(0);
+			value.addListener(noop.noop);
+			value.set("John");
+			noop.tracker.verify();
+		});
+
+		mocha.it("Changing value fires an event", () => {
+			const noop = getNoop(1);
+			value.addListener(noop.noop);
+			value.set("string");
+			noop.tracker.verify();
+		});
+
+		mocha.it("Listeners receive old and new values", () => {
+			const obj: {old: string | null; new: string | null} = {
+				old: null,
+				new: null
+			};
+			value.addListener((oldValue, newValue) => {
+				obj.old = oldValue;
+				obj.new = newValue;
+			});
+			value.set("string");
+			assert.equal(obj.old, "John");
+			assert.equal(obj.new, "string");
+		});
+
+		mocha.it("Setting value to null fires an event", () => {
+			const noop = getNoop(1);
+			value.addListener(noop.noop);
+			value.set(null);
+			noop.tracker.verify();
+		});
+
+		mocha.it("Setting value from null fires an event", () => {
+			const noop = getNoop(1);
+			value.set(null);
+			value.addListener(noop.noop);
+			value.set("string");
+			noop.tracker.verify();
 		});
 	});
 
-	mocha.it("Not changing primitive value won't fire an event", () => {
-		const noop = getNoop(0);
-		primitiveValue.addListener(noop.noop);
-		primitiveValue.set("John");
-		noop.tracker.verify();
+	mocha.describe("Array value", () => {
+		let value: Value<number[]>;
+		mocha.beforeEach(() => value = new Value([1, 2, 3]));
+		mocha.it.skip("Changing an array fires an event");
+		mocha.it.skip("Not changing an array won't fire an event");
 	});
 
-	mocha.it("Changing primitive value fires an event", () => {
-		const noop = getNoop(1);
-		primitiveValue.addListener(noop.noop);
-		primitiveValue.set("string");
-		noop.tracker.verify();
+	mocha.describe("Object value", () => {
+		let value: Value<{name: string; age: number}>;
+		mocha.beforeEach(() => value = new Value({name: "John", age: 12}));
+		mocha.it.skip("Setting partial object value does not erase omitted fields");
 	});
-
-	mocha.it.skip("Listeners receive old and new values");
-	mocha.it.skip("Value<T>.set(null) changes fires an event");
-	mocha.it.skip("Unsetting value from null changes the value fires an event");
-
-	mocha.it.skip("Changing an array fires an event");
-	mocha.it.skip("Not changing an array won't fire an event");
-
-	mocha.it.skip("Changing inner array in object fires an event");
-	mocha.it.skip("Setting partial object value does not erase omitted fields");
 });
 
 mocha.describe("Container<T>", () => {
