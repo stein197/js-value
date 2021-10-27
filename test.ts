@@ -88,7 +88,10 @@ mocha.describe("Value<T>", () => {
 	mocha.describe("Object value", () => {
 		let value: Value<{name: string; age: number}>;
 		mocha.beforeEach(() => value = new Value({name: "John", age: 12}));
-		mocha.it.skip("Setting partial object value does not erase omitted fields");
+		mocha.it.skip("Setting single field fires an event");
+		mocha.it.skip("Setting single field with the same value won't fire an event");
+		mocha.it.skip("Setting partial object value won't erase omitted fields");
+		mocha.it.skip("Setting empty object won't erase all fields");
 	});
 });
 mocha.describe("Container<T>", () => {
