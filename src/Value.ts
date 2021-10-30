@@ -32,15 +32,17 @@ export class Value<T> implements ReadonlyValue<T> {
 	 * Set the value and fires listeners on change.
 	 * @param value New value
 	 */
-	public set(value: T): void {
-		const isObject = lodash.isObject(value) && !lodash.isArray(value)
-		if (isObject && Value.partiallyEqual(this.value as unknown as object, value as unknown as object) || lodash.isEqual(this.value, value))
-				return;
+	public set(value: Partial<T>): void {
+		const isObj = isObject(value);
+		if (isObj && isEqualable(this.value) && this.value.equals(value))
+			return;
+		else if (isObj && partiallyEqual(this.value as unknown as object, value as unknown as object) || lodash.isEqual(this.value, value))
+			return;
 		const oldValue = this.value;
-		if (isObject)
+		if (isObj && this.value != null)
 			Object.assign(this.value, value);
 		else
-			this.value = value;
+			this.value = value as T;
 		this.observer.notify(oldValue, this.value);
 	}
 
@@ -55,14 +57,24 @@ export class Value<T> implements ReadonlyValue<T> {
 	public onceListener(listener: (oldValue: T, newValue: T) => void): void {
 		this.observer.onceListener(listener);
 	}
+}
 
-	private static partiallyEqual(obj1: {[key: string]: any}, obj2: {[key: string]: any}): boolean {
-		const intersection = lodash.intersection(Object.keys(obj1), Object.keys(obj2));
-		for (const key of intersection) {
-			const isObject = lodash.isObject(obj1[key]) && !lodash.isArray(obj1[key]);
-			if (isObject && !Value.partiallyEqual(obj1[key], obj2[key]) || !lodash.isEqual(obj1[key], obj2[key]))
-				return false;
-		}
-		return true;
+function isObject(obj: any): obj is object {
+	return lodash.isObject(obj) && !lodash.isArray(obj);
+}
+
+function isEqualable(obj: any): obj is {equals(obj: any): boolean} {
+	return obj?.equals && typeof obj.equals === "function";
+}
+
+function partiallyEqual(obj1: {[key: string]: any}, obj2: {[key: string]: any}): boolean {
+	if (obj1 == null || obj2 == null)
+		return obj1 == obj2;
+	const intersection = lodash.intersection(Object.keys(obj1), Object.keys(obj2));
+	for (const key of intersection) {
+		const isObj = isObject(obj1[key]);
+		if (isObj && !partiallyEqual(obj1[key], obj2[key]) || !lodash.isEqual(obj1[key], obj2[key]))
+			return false;
 	}
+	return true;
 }

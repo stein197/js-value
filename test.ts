@@ -2,34 +2,21 @@ import mocha from "mocha";
 import assert from "assert";
 import {Value, Container} from ".";
 
-function getNoop(): {noop(): void; tracker: assert.CallTracker} {
-	const tracker = new assert.CallTracker();
-	return {
-		noop: tracker.calls(() => {}),
-		tracker
-	};
-}
-
 mocha.describe("Value<T>", () => {
+	const defaultValue = "John";
+	const newValue = "string";
 	let value: Value<string | null>;
-	mocha.beforeEach(() => value = new Value("John"));
+	let noop: () => void;
+	let tracker: assert.CallTracker;
 
-	mocha.it("Not changing value won't fire an event", () => {
-		const noop = getNoop();
-		value.addListener(noop.noop);
-		value.set("John");
-		assert.throws(() => noop.tracker.verify());
-	});
-
-	mocha.it("Changing value fires an event", () => {
-		const noop = getNoop();
-		value.addListener(noop.noop);
-		value.set("string");
-		noop.tracker.verify();
+	mocha.beforeEach(() => {
+		value = new Value(defaultValue);
+		tracker = new assert.CallTracker();
+		noop = tracker.calls(() => {});
 	});
 
 	mocha.it("Listeners receive old and new values", () => {
-		const obj: {old: string | null; new: string | null} = {
+		const obj: any = {
 			old: null,
 			new: null
 		};
@@ -37,76 +24,164 @@ mocha.describe("Value<T>", () => {
 			obj.old = oldValue;
 			obj.new = newValue;
 		});
-		value.set("string");
-		assert.equal(obj.old, "John");
-		assert.equal(obj.new, "string");
+		value.set(newValue);
+		assert.equal(obj.old, defaultValue);
+		assert.equal(obj.new, newValue);
 	});
 
-	mocha.it("Setting value to null fires an event", () => {
-		const noop = getNoop();
-		value.addListener(noop.noop);
-		value.set(null);
-		noop.tracker.verify();
+	mocha.describe("set()", () => {
+		mocha.it("Same value won't fire an event", () => {
+			value.addListener(noop);
+			value.set(defaultValue);
+			assert.throws(() => tracker.verify());
+		});
+
+		mocha.it("New value fires an event", () => {
+			value.addListener(noop);
+			value.set("string");
+			tracker.verify();
+		});
 	});
 
-	mocha.it("Setting value from null fires an event", () => {
-		const noop = getNoop();
-		value.set(null);
-		value.addListener(noop.noop);
-		value.set("string");
-		noop.tracker.verify();
-	});
-
-	mocha.it("Value<T>.get() returns initial value", () => {
-		assert.equal(value.get(), "John");
-	});
-
-	mocha.it("Value<T>.get() returns set value", () => {
-		value.set("string");
-		assert.equal(value.get(), "string");
+	mocha.describe("get()", () => {
+		mocha.it("Returns initial value after instantiation", () => {
+			assert.equal(value.get(), defaultValue);
+		});
+	
+		mocha.it("Returns set value after set()", () => {
+			value.set(newValue);
+			assert.equal(value.get(), newValue);
+		});
 	});
 
 	mocha.describe("Array value", () => {
+		const defaultValue = [1, 2, 3];
+		const newValue = [1, 2, 3, 4];
 		let value: Value<number[]>;
-		mocha.beforeEach(() => value = new Value([1, 2, 3]));
+
+		mocha.beforeEach(() => value = new Value(defaultValue));
 
 		mocha.it("Changing an array fires an event", () => {
-			const noop = getNoop();
-			value.addListener(noop.noop);
-			value.set([1, 2, 3, 4]);
-			noop.tracker.verify();
+			value.addListener(noop);
+			value.set(newValue);
+			tracker.verify();
 		});
 
 		mocha.it("Not changing an array won't fire an event", () => {
-			const noop = getNoop();
-			value.addListener(noop.noop);
-			value.set([1, 2, 3]);
-			assert.throws(() => noop.tracker.verify());
+			value.addListener(noop);
+			value.set(defaultValue);
+			assert.throws(() => tracker.verify(), assert.AssertionError);
 		});
 	});
 
 	mocha.describe("Object value", () => {
-		let value: Value<{name: string; age: number}>;
-		mocha.beforeEach(() => value = new Value({name: "John", age: 12}));
-		mocha.it.skip("Setting single field fires an event");
-		mocha.it.skip("Setting single field with the same value won't fire an event");
-		mocha.it.skip("Setting partial object value won't erase omitted fields");
-		mocha.it.skip("Setting empty object won't erase all fields");
+		const defaultStringValue = "John";
+		const defaultNumberValue = 12;
+		const newStringValue = "string";
+		let value: Value<{string: string; number: number} | null>;
+
+		mocha.beforeEach(() => value = new Value({string: defaultStringValue, number: defaultNumberValue}));
+
+		mocha.it("Setting single field fires an event", () => {
+			value.addListener(noop);
+			value.set({string: newStringValue});
+			tracker.verify();
+		});
+
+		mocha.it("Setting single field with the same value won't fire an event", () => {
+			value.addListener(noop);
+			value.set({string: defaultStringValue});
+			assert.throws(() => tracker.verify(), assert.AssertionError);
+		});
+
+		mocha.it("Setting partial object value won't erase omitted fields", () => {
+			value.set({string: newStringValue});
+			assert.deepStrictEqual(value.get(), {string: newStringValue, number: defaultNumberValue});
+		});
+
+		mocha.it("Setting empty object does nothing", () => {
+			value.addListener(noop);
+			value.set({});
+			assert.throws(() => tracker.verify(), assert.AssertionError);
+			assert.deepStrictEqual(value.get(), {string: defaultStringValue, number: defaultNumberValue});
+		});
+
+		mocha.it("Setting value on null executes normally", () => {
+			value.set(null);
+			assert.equal(value.get(), null);
+			value.set({string: newStringValue});
+			assert.deepStrictEqual(value.get(), {string: newStringValue});
+		});
 	});
 });
+
 mocha.describe("Container<T>", () => {
-	let container: Container<{name: string; age: number; obj: {param1: string}; arr: number[]}>;
+	const defaultStringValue = "John";
+	const defaultNumberValue = 12;
+	const newStringValue = "string";
+	const newNumberValue = 24;
+	let container: Container<{string: string; number: number}>;
+	let noop: () => void;
+	let tracker: assert.CallTracker;
 
 	mocha.beforeEach(() => {
 		container = new Container({
-			name: "John",
-			age: 12,
-			obj: {
-				param1: "string"
-			},
-			arr: [
-				1, 2, 3
-			]
+			string: defaultStringValue,
+			number: defaultNumberValue,
+		});
+		tracker = new assert.CallTracker();
+		noop = tracker.calls(() => {});
+	});
+
+	mocha.it("Listeners receive old and new values", () => {
+		const obj: any = {
+			old: null,
+			new: null
+		};
+		container.addEventListener("number", (oldValue, newValue) => {
+			obj.old = oldValue;
+			obj.new = newValue;
+		});
+		container.addEventListener("string", (oldValue, newValue) => {
+			obj.old = oldValue;
+			obj.new = newValue;
+		});
+		container.set("number", newNumberValue);
+		assert.equal(obj.old, defaultNumberValue);
+		assert.equal(obj.new, newNumberValue);
+		container.set("string", newStringValue);
+		assert.equal(obj.old, defaultStringValue);
+		assert.equal(obj.new, newStringValue);
+	});
+
+	mocha.describe("get()", () => {
+		mocha.it("Returns specified values", () => {
+			assert.equal(container.get("string"), defaultStringValue);
+			assert.equal(container.get("number"), defaultNumberValue);
+		});
+
+		mocha.it("Returns all values", () => {
+			assert.deepStrictEqual(container.get(), {string: defaultStringValue, number: defaultNumberValue});
+		});
+	});
+
+	mocha.describe("set()", () => {
+		mocha.it("Same value won't fire an event", () => {
+			container.addEventListener("string", noop);
+			container.set("string", defaultStringValue);
+			assert.throws(() => tracker.verify());
+		});
+
+		mocha.it("New value fires an event", () => {
+			container.addEventListener("string", noop);
+			container.set("string", newStringValue);
+			tracker.verify();
+		});
+
+		mocha.it("Setting a value won't fire listeners attached to the different values", () => {
+			container.addEventListener("string", noop);
+			container.set("number", newNumberValue);
+			assert.throws(() => tracker.verify());
 		});
 	});
 });
