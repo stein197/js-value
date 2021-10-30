@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/stein197/value-observer.git"
+    "url": "git+https://github.com/stein197/js-value-observer.git"
   },
   "keywords": [
     "value",
@@ -24,9 +24,9 @@
   "author": "Nail' Gafarov <nil20122013@gmail.com> (https://gnail.dev)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/stein197/value-observer/issues"
+    "url": "https://github.com/stein197/js-value-observer/issues"
   },
-  "homepage": "https://github.com/stein197/value-observer#readme",
+  "homepage": "https://github.com/stein197/js-value-observer#readme",
   "dependencies": {
     "@stein197/observer": "^1.1.0",
     "lodash": "^4.17.21"
