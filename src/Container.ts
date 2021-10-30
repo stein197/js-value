@@ -32,8 +32,17 @@ export class Container<T extends {[K: string]: any}> implements ReadonlyContaine
 			this.values[key as keyof T] = new Value(value);
 	}
 
-	public get<K extends keyof T>(key: K): T[K] {
-		return this.values[key].get();
+	public get(): T;
+
+	public get<K extends keyof T>(key: K): T[K];
+
+	public get<K extends keyof T>(key?: K): T[K] | T {
+		if (key)
+			return this.values[key].get();
+		const result = {} as T;
+		for (const key in this.values)
+			result[key] = this.values[key].get();
+		return result;
 	}
 
 	/**
@@ -51,5 +60,9 @@ export class Container<T extends {[K: string]: any}> implements ReadonlyContaine
 
 	public removeEventListener<K extends keyof T>(key: K, listener: (oldValue: T[K], newValue: T[K]) => void): void {
 		this.values[key].removeListener(listener)
+	}
+
+	public onceEventListener<K extends keyof T>(key: K, listener: (oldValue: T[K], newValue: T[K]) => void): void {
+		this.values[key].onceListener(listener);
 	}
 }

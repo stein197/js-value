@@ -23,6 +23,12 @@ import {EventEmitter} from "@stein197/observer";
 export interface ReadonlyContainer<T extends {[K: string]: any}> extends EventEmitter<{[K in keyof T]: (oldValue: T[K], newValue: T[K]) => void}> {
 
 	/**
+	 * Return all values stored in container.
+	 * @return All values.
+	 */
+	 get(): T;
+
+	/**
 	 * Return value by its key.
 	 * @param key Key by which value is returned.
 	 * @returns Value.

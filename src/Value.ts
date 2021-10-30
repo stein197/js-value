@@ -52,6 +52,10 @@ export class Value<T> implements ReadonlyValue<T> {
 		this.observer.removeListener(listener);
 	}
 
+	public onceListener(listener: (oldValue: T, newValue: T) => void): void {
+		this.observer.onceListener(listener);
+	}
+
 	private static partiallyEqual(obj1: {[key: string]: any}, obj2: {[key: string]: any}): boolean {
 		const intersection = lodash.intersection(Object.keys(obj1), Object.keys(obj2));
 		for (const key of intersection) {
