@@ -73,46 +73,6 @@ mocha.describe("Value<T>", () => {
 			assert.throws(() => tracker.verify(), assert.AssertionError);
 		});
 	});
-
-	mocha.describe("Object value", () => {
-		const defaultStringValue = "John";
-		const defaultNumberValue = 12;
-		const newStringValue = "string";
-		let value: Value<{string: string; number: number} | null>;
-
-		mocha.beforeEach(() => value = new Value({string: defaultStringValue, number: defaultNumberValue}));
-
-		mocha.it("Setting single field fires an event", () => {
-			value.addListener(noop);
-			value.set({string: newStringValue});
-			tracker.verify();
-		});
-
-		mocha.it("Setting single field with the same value won't fire an event", () => {
-			value.addListener(noop);
-			value.set({string: defaultStringValue});
-			assert.throws(() => tracker.verify(), assert.AssertionError);
-		});
-
-		mocha.it("Setting partial object value won't erase omitted fields", () => {
-			value.set({string: newStringValue});
-			assert.deepStrictEqual(value.get(), {string: newStringValue, number: defaultNumberValue});
-		});
-
-		mocha.it("Setting empty object does nothing", () => {
-			value.addListener(noop);
-			value.set({});
-			assert.throws(() => tracker.verify(), assert.AssertionError);
-			assert.deepStrictEqual(value.get(), {string: defaultStringValue, number: defaultNumberValue});
-		});
-
-		mocha.it("Setting value on null executes normally", () => {
-			value.set(null);
-			assert.equal(value.get(), null);
-			value.set({string: newStringValue});
-			assert.deepStrictEqual(value.get(), {string: newStringValue});
-		});
-	});
 });
 
 mocha.describe("Container<T>", () => {

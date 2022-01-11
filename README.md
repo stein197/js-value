@@ -41,9 +41,9 @@ The package also provides two interfaces similar to the classes discussed above:
 import {ReadonlyValue, ReadonlyContainer} from "@stein197/value-observer";
 
 function observe(value: ReadonlyValue<boolean>): void {
-	value.set(true); // Ok
+	value.get(); // Ok
 	value.addListener(console.log); // Ok
-	value.get(); // Compile-time error
+	value.set(true); // Compile-time error
 }
 
 class AnotherContainer implements ReadonlyContainer<string> {/* ... */}
