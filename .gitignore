@@ -1,4 +1,4 @@
-/node_modules
-**/*.js
-**/*.d.ts
-!**/*.config.js
+node_modules
+*.js
+*.d.ts
+*.map
